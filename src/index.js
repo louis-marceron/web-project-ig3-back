@@ -19,7 +19,7 @@ require('./models/Book');
 (async () => {
     try {
         await sequelize.authenticate();
-        await sequelize.sync();
+        await sequelize.sync({ force: true });
         console.log('Database connection established and models synced.');
 
         app.listen(PORT, () => {
