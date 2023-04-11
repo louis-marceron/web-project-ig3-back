@@ -14,7 +14,7 @@ const sequelize = require('./config/database');
 const PORT = process.env.PORT || 3000;
 
 // Load models
-require('./models/Book');
+const AppUser = require('./models/AppUser');
 
 (async () => {
     try {
