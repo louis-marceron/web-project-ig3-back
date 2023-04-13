@@ -21,7 +21,7 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING(32),
             allowNull: false
         },
-        password_hash: {
+        password: {
             type: DataTypes.STRING,
             allowNull: false
         },
@@ -32,19 +32,20 @@ module.exports = (sequelize) => {
         }
     });
 
-    const hashPassword = async (user) => {
+    const hashPassword = async (password) => {
         const salt = await bcrypt.genSalt(10);
-        user.password_hash = await bcrypt.hash(user.password_hash, salt);
+        return bcrypt.hash(password, salt);
     };
 
-    AppUser.beforeCreate(hashPassword);
+    AppUser.beforeCreate(async (user) => {
+        user.password = await hashPassword(user.password);
+    });
 
     AppUser.beforeUpdate(async (user) => {
         if (user.changed('password')) {
-            hashPassword(user);
+            user.password = await hashPassword(user.password);
         }
     });
 
     return AppUser;
 }
-
