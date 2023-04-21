@@ -6,7 +6,7 @@ The back-end is a REST API that allows the front-end to communicate with the dat
 ## Table of Contents
 
 - [Requirements](#requirements)
-- [The database](#database)
+- [Database](#database)
 - [Installation](#installation)
 
 
@@ -36,7 +36,7 @@ app_user {
     UUID user_id PK
     string(320) email
     string(32) nickname
-    string password_hash
+    string password
     bool is_admin
 }
 
