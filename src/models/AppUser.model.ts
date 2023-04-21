@@ -47,5 +47,4 @@ export default class AppUser extends Model {
       user.password = await this.hashPassword(user.password);
     }
   }
-
 }
