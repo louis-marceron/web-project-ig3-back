@@ -49,4 +49,12 @@ describe('/users', () => {
         expect(response.body.length).equal(2)
     })
 
+    it('get the information of one user', async () => {
+        const user = await new AppUser(u1).save()
+        const response = await request(app)
+            .get(`/users/${user.user_id}`)
+            .expect(200)
+        const { password, ...strippedU1 } = user.dataValues;
+        expect(response.body).deep.equal(strippedU1)
+    })
 })

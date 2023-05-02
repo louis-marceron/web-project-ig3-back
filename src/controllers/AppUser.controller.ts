@@ -25,6 +25,26 @@ userController.get("/", async (_req: Request, res: Response, next: NextFunction)
   }
 });
 
+// GET one user
+userController.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = await AppUser.findByPk(req.params.id);
+    if (!user) {
+      next(new ErrorWithStatus("User not found", 404))
+      return;
+    }
+    res.status(200).json({
+      user_id: user.user_id,
+      email: user.email,
+      nickname: user.nickname,
+      is_admin: user.is_admin, 
+    });
+  } catch (error) {
+    console.error("Error fetching user:", error);
+    res.status(500).json({ error: "Error fetching user" });
+  }
+});
+
 // Remove the sensitive/useless fields from the response
 function stripUserValues(user: AppUser) {
   const { password, is_admin, ...rest } = user.dataValues
