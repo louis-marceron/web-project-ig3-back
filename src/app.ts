@@ -4,12 +4,16 @@ import express from 'express'
 import notFoundErrorHandler from './middlewares/notFoundErrorHandler'
 import genericErrorHandler from './middlewares/genericErrorHandler'
 
+import userController from "./controllers/AppUser.controller"
+
 const app = express();
 
 app.use(helmet());
-// Exlication du fonction de .json() et .urlencoded() : https://stackoverflow.com/a/51844327
 app.use(express.json()); // Transforme les requêtes entrantes JSON en objet JS 
 app.use(express.urlencoded({ extended: true })); // Permet de lire les données des strings dans les requêtes entrantes 
+
+// Routes
+app.use("/users", userController)
 
 // Middlewares de gestion des erreurs
 app.use(notFoundErrorHandler);

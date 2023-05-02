@@ -1,6 +1,6 @@
 import { Sequelize } from 'sequelize-typescript'
 
-export default new Sequelize({
+const db: Sequelize = new Sequelize({
     storage: ':memory:',
     dialect: 'sqlite',
     models: [__dirname + '/../src/models'],
@@ -10,3 +10,5 @@ export default new Sequelize({
     },
     logging: false,
 });
+
+export default db;

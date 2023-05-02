@@ -18,7 +18,15 @@
 			"type": "npm",
 			"script": "dev",
 			"problemMatcher": [],
-			"label": "npm: dev",
+			"label": "npm: dev"
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "npm: build",
+			"detail": "tsc"
 		}
 	]
 }
