@@ -2,7 +2,6 @@ const helmet = require('helmet');
 import express from 'express'
 
 import notFoundErrorHandler from './middlewares/notFoundErrorHandler'
-import genericErrorHandler from './middlewares/genericErrorHandler'
 
 import userController from "./controllers/AppUser.controller"
 
@@ -17,7 +16,6 @@ app.use("/users", userController)
 
 // Middlewares de gestion des erreurs
 app.use(notFoundErrorHandler);
-app.use(genericErrorHandler);
 
 // Exporte le module app pour l'utiliser dans d'autres fichiers (index.js)
 export default app;
