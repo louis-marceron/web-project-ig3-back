@@ -1,7 +1,8 @@
-import { NextFunction, Request, Response, Router } from "express";
-import z from 'zod'
+import { NextFunction, Request, Response, Router } from "express"
+import z, { ZodError } from 'zod'
 import AppUser from "../models/AppUser.model";
-import { AppUserSchema } from "../validators/AppUser.validator";
+import { AppUserSchema } from "../validators/AppUser.validator"
+import { UniqueConstraintError } from "sequelize";
 
 const userController = Router();
 
@@ -38,7 +39,6 @@ userController.get("/:id", async (req: Request, res: Response, next: NextFunctio
     res.status(200).json({
       user_id: user.user_id,
       email: user.email,
-      nickname: user.nickname,
       is_admin: user.is_admin,
     })
   } catch (error) {
@@ -65,7 +65,7 @@ userController.post("/", async (req: Request, res: Response) => {
 
 // Remove the sensitive/useless fields from the response
 function stripUserValues(user: AppUser) {
-  const { password, is_admin, ...rest } = user.dataValues
+  const { password, ...rest } = user.dataValues
   return rest
 }
 
