@@ -98,6 +98,19 @@ userController.patch('/:id', async (req: Request, res: Response) => {
   }
 })
 
+// Delete a user
+userController.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const user = await AppUser.findByPk(req.params.id)
+    if (!user) { return res.status(404).json('User not found') }
+    await user.destroy()
+    return res.status(204).end()
+  } catch (error) {
+    console.log('Error deleting user', error)
+    return res.status(500).json('Error deleting user')
+  }
+})
+
 // Remove the sensitive/useless fields from the response
 function stripUserValues(user: AppUser) {
   const { password, ...rest } = user.dataValues

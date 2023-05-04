@@ -53,7 +53,7 @@ describe('/users', () => {
         })
 
         it('returns 404 if the user doesn\'t exist', async () => {
-            const response = await request(app)
+            await request(app)
                 .get('/users/13')
                 .expect(404)
         })
@@ -111,7 +111,7 @@ describe('/users', () => {
         it('updates an existing user', async () => {
             const user = await new AppUser(u1).save()
             const updatedFields = { email: 'newemail@email.com', password: 'newpassword', is_admin: true }
-            const response = await request(app)
+            await request(app)
                 .patch(`/users/${user.user_id}`)
                 .send(updatedFields)
                 .expect(204)
@@ -121,8 +121,8 @@ describe('/users', () => {
             expect(await bcrypt.compare(updatedFields.password, updatedUser?.password)).to.be.true
         })
 
-        it('prevents updating a user that doesn\'t exist', async () => {
-            const response = await request(app)
+        it('returns 404 if the user doesn\'t exist', async () => {
+            await request(app)
                 .patch('/users/13')
                 .send({ email: 'newemail@email.com ' })
                 .expect(404)
@@ -154,6 +154,22 @@ describe('/users', () => {
                 .send({ password: '123456' })
                 .expect(400)
             expect(response.body.error).equal('Validation error')
+        })
+    })
+
+    describe('DELETE', async () => {
+        it('returns 404 if the user doesn\'t exist', async () => {
+            await request(app)
+                .delete('/users/13')
+                .expect(404)
+        })
+
+        it('deletes a user', async () => {
+            const user = await new AppUser(u1).save()
+            await request(app)
+                .delete(`/users/${user.user_id}`)
+                .expect(204)
+            expect(await AppUser.findByPk(user.user_id)).to.be.null
         })
     })
 })
