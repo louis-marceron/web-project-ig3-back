@@ -32,7 +32,6 @@ erDiagram
 app_user {
     UUID user_id PK
     string(320) email
-    string(32) nickname
     string password
     bool is_admin
 }

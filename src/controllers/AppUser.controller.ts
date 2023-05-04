@@ -50,16 +50,51 @@ userController.get("/:id", async (req: Request, res: Response, next: NextFunctio
 // Create a new user
 userController.post("/", async (req: Request, res: Response) => {
   try {
-    const userInput = AppUserSchema.parse(req.body);
-    const newUser = await AppUser.create(userInput);
-    res.status(201).json(newUser);
+    const userInput = AppUserSchema.parse(req.body)
+    const newUser = await AppUser.create(userInput)
+    const newUserWithoutPassword = stripUserValues(newUser)
+    return res.status(201).json(newUserWithoutPassword)
   } catch (error) {
     if (error instanceof z.ZodError) {
-      res.status(400).json({ error: "Validation error", details: error.errors });
-    } else {
-      res.status(500).json({ error: "Error creating user" });
-      console.error("Error creating user:", error);
+      return res.status(400).json({ error: "Validation error", details: error.errors })
     }
+
+    if (error instanceof UniqueConstraintError) {
+      // TODO prevent the user from knowing that an account with this email already exists
+      return res.status(400).json({ error: "An account with this email already exists" })
+    }
+
+    console.error("Error creating user:", error)
+    return res.status(500).json({ error: "Error creating user" })
+  }
+})
+
+// Update an existing user
+userController.patch('/:id', async (req: Request, res: Response) => {
+  try {
+    const partialUserSchema = AppUserSchema.partial()
+    const user = await AppUser.findByPk(req.params.id)
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' })
+    }
+
+    const userInput = partialUserSchema.parse(req.body)
+    await user.update(userInput)
+    return res.status(204)
+  }
+  catch (error) {
+    if (error instanceof ZodError) {
+      return res.status(400).json({ error: 'Validation error', details: error.errors })
+    }
+
+    if (error instanceof UniqueConstraintError) {
+      // TODO prevent the user from knowing that an account with this email already exists
+      return res.status(400).json({ error: "An account with this email already exists" })
+    }
+
+    console.log('Error updating user:', error)
+    return res.status(500).json({ error: 'Error updating user' })
   }
 })
 
