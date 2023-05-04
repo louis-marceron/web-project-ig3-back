@@ -21,9 +21,6 @@ export default class AppUser extends Model {
   @Column({ type: DataTypes.STRING(320), allowNull: false })
   declare email: string;
 
-  @Column({ type: DataTypes.STRING(32), allowNull: false })
-  declare nickname: string;
-
   @Column({ type: DataTypes.STRING, allowNull: false })
   declare password: string;
 

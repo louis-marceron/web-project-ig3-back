@@ -4,9 +4,9 @@ import app from '../src/app'
 import db from '../Utils/testDB.util'
 import AppUser from '../src/models/AppUser.model'
 
-const u1 = { email: "user1@mail.com", nickname: "user1", password: "password1" };
-const u2 = { email: "user2@mail.com", nickname: "user2", password: "password2" };
-const u3 = { email: "user3@mail.com", nickname: "user3", password: "password3" };
+const u1 = { email: "user1@mail.com", password: "password1" }
+const u2 = { email: "user2@mail.com", password: "password2" }
+const u3 = { email: "user3@mail.com", password: "password3" }
 
 describe('/users', () => {
     before(async () => {
