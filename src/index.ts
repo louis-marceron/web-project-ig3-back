@@ -1,8 +1,8 @@
-import loadDevEnv from './config/loadDevEnv'
+import loadEnvironmentVariables from './config/loadEnvironmentVariables'
 import loadDatabase from './config/loadDatabase'
 import app from './app'
 
-loadDevEnv()
+if (process.env.NODE_ENV !== 'production') loadEnvironmentVariables()
 loadDatabase()
 
 const PORT = process.env.PORT || 3000
