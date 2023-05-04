@@ -81,7 +81,7 @@ userController.patch('/:id', async (req: Request, res: Response) => {
 
     const userInput = partialUserSchema.parse(req.body)
     await user.update(userInput)
-    return res.status(204)
+    return res.status(204).end()
   }
   catch (error) {
     if (error instanceof ZodError) {

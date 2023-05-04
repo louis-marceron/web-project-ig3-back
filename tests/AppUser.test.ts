@@ -101,52 +101,55 @@ describe('/users', () => {
         })
     })
 
-    // describe('PATCH', () => {
-    //     it('updates an existing user', async () => {
-    //         const user = await new AppUser(u1).save()
-    //         const updatedUser = { email: 'newemail@email.com', password: 'newpassword' }
-    //         const response = await request(app)
-    //             .patch(`/users/${user.user_id}`)
-    //             .send(updatedUser)
-    //             .expect(204)
-    //         expect(response.body.email).equal(updatedUser.email)
-    //         expect(response.body.password).equal(await hashPassword(u1.password))
-    //     })
+    describe('PATCH', () => {
+        it('updates an existing user', async () => {
+            const user = await new AppUser(u1).save()
+            const updatedFields = { email: 'newemail@email.com', password: 'newpassword', is_admin: true}
+            const response = await request(app)
+                .patch(`/users/${user.user_id}`)
+                .send(updatedFields)
+                .expect(204)
+            const updatedUser = await AppUser.findByPk(user.user_id)
+            expect(updatedUser?.email).equal(updatedFields.email)
+            expect(updatedUser?.is_admin).equal(updatedFields.is_admin)
+            expect(await bcrypt.compare(updatedFields.password, updatedUser?.password)).to.be.true
+        })
 
-    //     it('prevents updating a user that doesn\'t exist', async () => {
-    //         const response = await request(app)
-    //             .patch('/users/13')
-    //             .send({ email: 'newemail@email.com ' })
-    //             .expect(404)
-    //     })
+        it('prevents updating a user that doesn\'t exist', async () => {
+            const response = await request(app)
+                .patch('/users/13')
+                .send({ email: 'newemail@email.com ' })
+                .expect(404)
+        })
 
-    //     it('prevents updating a user with an invalid email', async () => {
-    //         const user = await new AppUser(u1).save()
-    //         const response = await request(app)
-    //             .patch(`/users/${user.id}`)
-    //             .send({ email: 'invalid_email' })
-    //             .expect(400)
-    //         expect(response.body.error).equal('Validation error')
-    //     })
+        it('prevents updating a user with an invalid email', async () => {
+            const user = await new AppUser(u1).save()
+            const response = await request(app)
+                .patch(`/users/${user.user_id}`)
+                .send({ email: 'invalid_email' })
+                .expect(400)
+            expect(response.body.error).equal('Validation error')
+        })
 
-    //     it('prevents updating with an email used by another user', async () => {
-    //         const user = await new AppUser(u1).save()
-    //         const response = await request(app)
-    //             .patch(`/users/${user.id}`)
-    //             .send(u1)
-    //             .expect(400)
-    //         expect(response.body.error).equal('An account with this email already exists')
-    //     })
+        it('prevents updating with an email used by another user', async () => {
+            const user = await new AppUser(u1).save()
+            await new AppUser(u2).save()
+            const response = await request(app)
+                .patch(`/users/${user.user_id}`)
+                .send({ email: u2.email })
+                .expect(400)
+            expect(response.body.error).equal('An account with this email already exists')
+        })
 
-    //     it('prevents updating a password with less than 8 characters', async () => {
-    //         const user = await new AppUser(u1).save()
-    //         const response = await request(app)
-    //             .patch(`/users/${user.id}`)
-    //             .send({ password: '123456' })
-    //             .expect(400)
-    //         expect(response.body.error).equal('Validation error')
-    //     })
-    // })
+        it('prevents updating a password with less than 8 characters', async () => {
+            const user = await new AppUser(u1).save()
+            const response = await request(app)
+                .patch(`/users/${user.user_id}`)
+                .send({ password: '123456' })
+                .expect(400)
+            expect(response.body.error).equal('Validation error')
+        })
+    })
 })
 
 async function hashPassword(password: string): Promise<string> {
