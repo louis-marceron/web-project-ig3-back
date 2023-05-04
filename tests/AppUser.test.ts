@@ -72,6 +72,7 @@ describe('/users', () => {
             expect(user?.dataValues).not.equal(null)
             const { password, ...userWithoutPassword } = user?.dataValues
             expect(response.body).deep.equal(userWithoutPassword)
+            expect(await bcrypt.compare(u1.password, user?.password)).to.be.true
         })
 
         it('prevents creating a user with an invalid email', async () => {
