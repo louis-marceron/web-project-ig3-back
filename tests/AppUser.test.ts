@@ -91,7 +91,7 @@ describe('/users', () => {
             expect(response.body.error).equal('An account with this email already exists')
         })
 
-        it('prevents creating a password with less than 8 characters', async () => {
+        it('prevents creating an invalid password', async () => {
             const response = await request(app)
                 .post('/users')
                 .send({ email: 'user@email.com', password: '123456' })
