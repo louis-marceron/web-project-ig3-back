@@ -52,6 +52,12 @@ describe('/users', () => {
             expect(response.body.length).equal(2)
         })
 
+        it('returns 404 if the user doesn\'t exist', async () => {
+            const response = await request(app)
+                .get('/users/13')
+                .expect(404)
+        })
+
         it('get one user', async () => {
             const user = await new AppUser(u1).save()
             const response = await request(app)
@@ -104,7 +110,7 @@ describe('/users', () => {
     describe('PATCH', () => {
         it('updates an existing user', async () => {
             const user = await new AppUser(u1).save()
-            const updatedFields = { email: 'newemail@email.com', password: 'newpassword', is_admin: true}
+            const updatedFields = { email: 'newemail@email.com', password: 'newpassword', is_admin: true }
             const response = await request(app)
                 .patch(`/users/${user.user_id}`)
                 .send(updatedFields)
