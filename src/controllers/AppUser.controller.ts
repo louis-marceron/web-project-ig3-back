@@ -1,15 +1,12 @@
-import { NextFunction, Request, Response, Router } from "express"
-import z, { ZodError } from 'zod'
-import AppUser from "../models/AppUser.model";
-import { AppUserSchema } from "../validators/AppUser.validator"
-import { UniqueConstraintError } from "sequelize";
+import { NextFunction, Request, Response } from "express"
+import { z, ZodError } from 'zod'
+import { UniqueConstraintError } from 'sequelize'
+import AppUser from '../models/AppUser.model'
+import { AppUserSchema } from '../validators/AppUser.validator'
 
-const userController = Router();
-
-// GET all users
-userController.get("/", async (_req: Request, res: Response, next: NextFunction) => {
+export const getAllUsers = async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const users = await AppUser.findAll();
+    const users = await AppUser.findAll()
 
     if (users.length === 0) {
       // According to the MDN, we should use the 404 response code when : 
@@ -20,15 +17,14 @@ userController.get("/", async (_req: Request, res: Response, next: NextFunction)
     }
 
     const strippedUsers = users.map(user => stripUserValues(user))
-    return res.status(200).json(strippedUsers);
+    return res.status(200).json(strippedUsers)
   } catch (error) {
-    console.error('Error fetching users:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Error fetching users:', error)
+    return res.status(500).json({ error: 'Internal server error' })
   }
-});
+}
 
-// GET one user
-userController.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
+export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await AppUser.findByPk(req.params.id)
 
@@ -43,12 +39,11 @@ userController.get("/:id", async (req: Request, res: Response, next: NextFunctio
     })
   } catch (error) {
     console.error('Error fetching user:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' })
   }
-});
+}
 
-// Create a new user
-userController.post("/", async (req: Request, res: Response) => {
+export const createUser = async (req: Request, res: Response) => {
   try {
     const userInput = AppUserSchema.parse(req.body)
     const newUser = await AppUser.create(userInput)
@@ -67,10 +62,9 @@ userController.post("/", async (req: Request, res: Response) => {
     console.error("Error creating user:", error)
     return res.status(500).json({ error: "Error creating user" })
   }
-})
+}
 
-// Update an existing user
-userController.patch('/:id', async (req: Request, res: Response) => {
+export const updateUser = async (req: Request, res: Response) => {
   try {
     const partialUserSchema = AppUserSchema.partial()
     const user = await AppUser.findByPk(req.params.id)
@@ -96,10 +90,9 @@ userController.patch('/:id', async (req: Request, res: Response) => {
     console.log('Error updating user:', error)
     return res.status(500).json({ error: 'Error updating user' })
   }
-})
+}
 
-// Delete a user
-userController.delete('/:id', async (req: Request, res: Response) => {
+export const deleteUser = async (req: Request, res: Response) => {
   try {
     const user = await AppUser.findByPk(req.params.id)
     if (!user) { return res.status(404).json('User not found') }
@@ -109,12 +102,10 @@ userController.delete('/:id', async (req: Request, res: Response) => {
     console.log('Error deleting user', error)
     return res.status(500).json('Error deleting user')
   }
-})
+}
 
-// Remove the sensitive/useless fields from the response
+// Remove the sensitive/useless fields
 function stripUserValues(user: AppUser) {
   const { password, ...rest } = user.dataValues
   return rest
 }
-
-export default userController
