@@ -1,12 +1,11 @@
 import bcrypt from 'bcrypt'
 import request from 'supertest'
 import { expect } from "chai"
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import app from '../src/app'
 import loadEnvironmentVariables from '../src/config/loadEnvironmentVariables'
 import db from '../utils/testDB.util'
 import AppUser from '../src/models/AppUser.model'
-import { JwtPayload } from 'jsonwebtoken'
 
 const u1 = { email: 'user1@mail.com', password: 'password1' }
 const u2 = { email: 'user2@mail.com', password: 'password2' }
@@ -188,19 +187,16 @@ describe('/users', () => {
             expect(createdUser?.dataValues).not.be.undefined
         })
 
-        it('returns a valid token', async () => {
+        it('returns a cookie with the JWT with the id of user', async () => {
             const response = await request(app)
                 .post('/users/signup')
                 .send(u1)
                 .expect(201)
 
-            const token: string = response.body
-            expect(jwt.verify(token, process.env.SECRET!)).does.not.throw
-            const payload = jwt.verify(token, process.env.SECRET!)
-            const userId: string = (payload as JwtPayload).id
-            expect(userId).to.not.be.undefined
             const createdUser = await AppUser.findOne({ where: { email: u1.email } })
-            expect(userId).to.equal(createdUser?.user_id)
+            const token: string = (response.header['set-cookie'][0] as string).substring(6, 193)
+            const userIdFromToken: string = (jwt.decode(token) as JwtPayload).id
+            expect(userIdFromToken).to.equal(createdUser!.user_id)
         })
     })
 
@@ -212,13 +208,16 @@ describe('/users', () => {
                 .expect(401)
         })
 
-        it('returns 200 when the credentials are valid', async () => {
-            await new AppUser(u1).save()
+        it('returns a cookie with the JWT with the id of user', async () => {
+            const user = await new AppUser(u1).save()
             const response = await request(app)
                 .post('/users/login')
                 .send(u1)
                 .expect(200)
-            console.log(response)
+
+            const token: string = (response.header['set-cookie'][0] as string).substring(6, 193)
+            const userIdFromToken: string = (jwt.decode(token) as JwtPayload).id
+            expect(userIdFromToken).to.equal(user.user_id)
         })
     })
 })

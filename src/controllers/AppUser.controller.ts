@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express"
+import e, { NextFunction, Request, Response } from "express"
 import { z, ZodError } from 'zod'
 import bcrypt from 'bcrypt'
 import { UniqueConstraintError } from 'sequelize'
@@ -119,7 +119,10 @@ export const signup = async (req: Request, res: Response) => {
     const userInput = AppUserSchema.parse(req.body)
     const newUser = await AppUser.create(userInput)
     const token: string = jwt.sign({ id: newUser.user_id }, process.env.SECRET, { expiresIn: TOKEN_LIFE_SPAN })
-    return res.status(201).json(token)
+    return res
+      .cookie('token', token, { secure: true, httpOnly: true })
+      .status(201)
+      .end()
   }
 
   catch (error) {
@@ -152,9 +155,12 @@ export const login = async (req: Request, res: Response) => {
     if (!isValidPassword)
       return res.status(401).json({ error: INVALID_CREDENTIAL_MESSAGE })
 
-    // Return a JWT
+    // Return a JWT as a cookie
     const token: string = jwt.sign({ id: user.user_id }, process.env.SECRET, { expiresIn: TOKEN_LIFE_SPAN })
-    return res.status(200).json(token)
+    return res
+      .status(200)
+      .cookie('token', token, { secure: true, httpOnly: true })
+      .end()
   }
 
   catch (error) {
