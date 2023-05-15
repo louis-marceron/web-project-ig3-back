@@ -2,7 +2,8 @@ import { NextFunction, Request, Response } from "express"
 import { z, ZodError } from 'zod'
 import { UniqueConstraintError } from 'sequelize'
 import AppUser from '../models/AppUser.model'
-import { AppUserSchema } from '../validators/AppUser.validator'
+import AppUserSchema from '../validators/AppUser.validator'
+import jwt from 'jsonwebtoken'
 
 export const getAllUsers = async (_req: Request, res: Response, next: NextFunction) => {
   try {
@@ -104,7 +105,30 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 }
 
+export const signup = async (req: Request, res: Response) => {
+  try {
+    const userInput = AppUserSchema.parse(req.body)
+    const newUser = await AppUser.create(userInput)
+    const EXPIRES_IN: string = '15d'
+    const token: string = jwt.sign({ id: newUser.user_id }, process.env.SECRET!, { expiresIn: EXPIRES_IN })
+    return res.status(201).json(token)
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: "Validation error", details: error.errors })
+    }
+
+    if (error instanceof UniqueConstraintError) {
+      // TODO prevent the user from knowing that an account with this email already exists
+      return res.status(400).json({ error: "An account with this email already exists" })
+    }
+
+    console.error("Error creating user:", error)
+    return res.status(500).json({ error: "Error creating user" })
+  }
+}
+
 // Remove the sensitive/useless fields
+// TODO rename to omitPassword
 function stripUserValues(user: AppUser) {
   const { password, ...rest } = user.dataValues
   return rest

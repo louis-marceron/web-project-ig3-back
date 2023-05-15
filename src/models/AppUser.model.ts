@@ -9,7 +9,7 @@ import {
   BeforeUpdate,
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
-const bcrypt = require('bcrypt');
+import bcrypt from 'bcrypt';
 
 @Table({ tableName: 'app_user' })
 export default class AppUser extends Model {

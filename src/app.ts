@@ -3,6 +3,7 @@ import express from 'express'
 import notFoundErrorHandler from './middlewares/notFoundErrorHandler'
 import userRoutes from './routes/AppUser.route'
 
+/** Middleware for handling HTTP requests. */
 const app = express()
 
 app.use(helmet())

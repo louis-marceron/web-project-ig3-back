@@ -1,9 +1,12 @@
+import bcrypt from 'bcrypt'
 import request from 'supertest'
 import { expect } from "chai"
+import jwt from 'jsonwebtoken'
 import app from '../src/app'
+import loadEnvironmentVariables from '../src/config/loadEnvironmentVariables'
 import db from '../utils/testDB.util'
 import AppUser from '../src/models/AppUser.model'
-const bcrypt = require('bcrypt')
+import { JwtPayload } from 'jsonwebtoken'
 
 const u1 = { email: 'user1@mail.com', password: 'password1' }
 const u2 = { email: 'user2@mail.com', password: 'password2' }
@@ -11,6 +14,7 @@ const u2 = { email: 'user2@mail.com', password: 'password2' }
 describe('/users', () => {
     before(async () => {
         try {
+            loadEnvironmentVariables()
             await db.authenticate()
         } catch (err) {
             console.error('Unable to connect to the database:', err)
@@ -75,10 +79,10 @@ describe('/users', () => {
                 .send(u1)
                 .expect(201)
             const user = await AppUser.findOne({ where: { email: u1.email } })
-            expect(user?.dataValues).not.equal(null)
+            expect(user?.dataValues).not.undefined
             const { password, ...userWithoutPassword } = user?.dataValues
             expect(response.body).deep.equal(userWithoutPassword)
-            expect(await bcrypt.compare(u1.password, user?.password)).to.be.true
+            expect(await bcrypt.compare(u1.password, password)).to.be.true
         })
 
         it('prevents creating a user with an invalid email', async () => {
@@ -118,7 +122,7 @@ describe('/users', () => {
             const updatedUser = await AppUser.findByPk(user.user_id)
             expect(updatedUser?.email).equal(updatedFields.email)
             expect(updatedUser?.is_admin).equal(updatedFields.is_admin)
-            expect(await bcrypt.compare(updatedFields.password, updatedUser?.password)).to.be.true
+            expect(await bcrypt.compare(updatedFields.password, updatedUser!.password)).to.be.true
         })
 
         it('returns 404 if the user doesn\'t exist', async () => {
@@ -157,7 +161,7 @@ describe('/users', () => {
         })
     })
 
-    describe('DELETE', async () => {
+    describe('DELETE', () => {
         it('returns 404 if the user doesn\'t exist', async () => {
             await request(app)
                 .delete('/users/13')
@@ -172,9 +176,31 @@ describe('/users', () => {
             expect(await AppUser.findByPk(user.user_id)).to.be.null
         })
     })
-})
 
-async function hashPassword(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt(10);
-    return bcrypt.hash(password, salt);
-}
+    describe('/signup', () => {
+        it('creates a new user', async () => {
+            await request(app)
+                .post('/users/signup')
+                .send(u1)
+                .expect(201)
+
+            const createdUser = await AppUser.findOne({ where: { email: u1.email } })
+            expect(createdUser?.dataValues).not.be.undefined
+        })
+
+        it('returns a valid token', async () => {
+            const response = await request(app)
+                .post('/users/signup')
+                .send(u1)
+                .expect(201)
+
+            const token: string = response.body
+            expect(jwt.verify(token, process.env.SECRET!)).does.not.throw
+            const payload = jwt.verify(token, process.env.SECRET!)
+            const userId: string = (payload as JwtPayload).id
+            expect(userId).to.not.be.undefined
+            const createdUser = await AppUser.findOne({ where: { email: u1.email } })
+            expect(userId).to.equal(createdUser?.user_id)
+        })
+    })
+})
