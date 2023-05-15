@@ -203,4 +203,22 @@ describe('/users', () => {
             expect(userId).to.equal(createdUser?.user_id)
         })
     })
+
+    describe('/login', () => {
+        it('returns 401 if the credentials are invalid', async () => {
+            await request(app)
+                .post('/users/login')
+                .send(u1)
+                .expect(401)
+        })
+
+        it('returns 200 when the credentials are valid', async () => {
+            await new AppUser(u1).save()
+            const response = await request(app)
+                .post('/users/login')
+                .send(u1)
+                .expect(200)
+            console.log(response)
+        })
+    })
 })
