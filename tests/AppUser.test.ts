@@ -9,6 +9,7 @@ import AppUser from '../src/models/AppUser.model'
 
 const u1 = { email: 'user1@mail.com', password: 'password1' }
 const u2 = { email: 'user2@mail.com', password: 'password2' }
+let adminToken: string;
 
 describe('/users', () => {
     before(async () => {
@@ -33,6 +34,9 @@ describe('/users', () => {
     beforeEach(async () => {
         try {
             await db.sync({ force: true })
+            const admin = await new AppUser({ email: 'admin@mail.com', password: 'adminpassword' }).save()
+            await admin.update({ is_admin: true })
+            adminToken = jwt.sign({ id: admin.user_id }, process.env.SECRET!, { expiresIn: '1d' })
         } catch (err) {
             console.error('Unable to sync to the database:', err)
             throw err
@@ -40,24 +44,20 @@ describe('/users', () => {
     })
 
     describe('GET', () => {
-        it('returns 404 if there are no users', async () => {
-            await request(app)
-                .get('/users')
-                .expect(404)
-        })
-
         it('get all users', async () => {
             await new AppUser(u1).save()
             await new AppUser(u2).save()
             const response = await request(app)
                 .get('/users')
+                .set('Cookie', [`token=${adminToken}`])
                 .expect(200)
-            expect(response.body.length).equal(2)
+            expect(response.body.length).equal(3)
         })
 
         it('returns 404 if the user doesn\'t exist', async () => {
             await request(app)
                 .get('/users/13')
+                .set('Cookie', [`token=${adminToken}`])
                 .expect(404)
         })
 
@@ -65,6 +65,7 @@ describe('/users', () => {
             const user = await new AppUser(u1).save()
             const response = await request(app)
                 .get(`/users/${user.user_id}`)
+                .set('Cookie', [`token=${adminToken}`])
                 .expect(200)
             const { password, ...strippedU1 } = user.dataValues;
             expect(response.body).deep.equal(strippedU1)
@@ -75,6 +76,7 @@ describe('/users', () => {
         it('creates a new user', async () => {
             const response = await request(app)
                 .post('/users')
+                .set('Cookie', [`token=${adminToken}`])
                 .send(u1)
                 .expect(201)
             const user = await AppUser.findOne({ where: { email: u1.email } })
@@ -87,6 +89,7 @@ describe('/users', () => {
         it('prevents creating a user with an invalid email', async () => {
             const response = await request(app)
                 .post('/users')
+                .set('Cookie', [`token=${adminToken}`])
                 .send({ ...u1, email: 'invalid_email' })
                 .expect(400)
             expect(response.body.error).equal('Validation error')
@@ -96,6 +99,7 @@ describe('/users', () => {
             await new AppUser(u1).save()
             const response = await request(app)
                 .post('/users')
+                .set('Cookie', [`token=${adminToken}`])
                 .send(u1)
                 .expect(400)
             expect(response.body.error).equal('An account with this email already exists')
@@ -104,6 +108,7 @@ describe('/users', () => {
         it('prevents creating an invalid password', async () => {
             const response = await request(app)
                 .post('/users')
+                .set('Cookie', [`token=${adminToken}`])
                 .send({ email: 'user@email.com', password: '123456' })
                 .expect(400)
             expect(response.body.error).equal('Validation error')
@@ -116,6 +121,7 @@ describe('/users', () => {
             const updatedFields = { email: 'newemail@email.com', password: 'newpassword', is_admin: true }
             await request(app)
                 .patch(`/users/${user.user_id}`)
+                .set('Cookie', [`token=${adminToken}`])
                 .send(updatedFields)
                 .expect(204)
             const updatedUser = await AppUser.findByPk(user.user_id)
@@ -127,6 +133,7 @@ describe('/users', () => {
         it('returns 404 if the user doesn\'t exist', async () => {
             await request(app)
                 .patch('/users/13')
+                .set('Cookie', [`token=${adminToken}`])
                 .send({ email: 'newemail@email.com ' })
                 .expect(404)
         })
@@ -135,6 +142,7 @@ describe('/users', () => {
             const user = await new AppUser(u1).save()
             const response = await request(app)
                 .patch(`/users/${user.user_id}`)
+                .set('Cookie', [`token=${adminToken}`])
                 .send({ email: 'invalid_email' })
                 .expect(400)
             expect(response.body.error).equal('Validation error')
@@ -145,6 +153,7 @@ describe('/users', () => {
             await new AppUser(u2).save()
             const response = await request(app)
                 .patch(`/users/${user.user_id}`)
+                .set('Cookie', [`token=${adminToken}`])
                 .send({ email: u2.email })
                 .expect(400)
             expect(response.body.error).equal('An account with this email already exists')
@@ -154,6 +163,7 @@ describe('/users', () => {
             const user = await new AppUser(u1).save()
             const response = await request(app)
                 .patch(`/users/${user.user_id}`)
+                .set('Cookie', [`token=${adminToken}`])
                 .send({ password: '123456' })
                 .expect(400)
             expect(response.body.error).equal('Validation error')
@@ -164,6 +174,7 @@ describe('/users', () => {
         it('returns 404 if the user doesn\'t exist', async () => {
             await request(app)
                 .delete('/users/13')
+                .set('Cookie', [`token=${adminToken}`])
                 .expect(404)
         })
 
@@ -171,6 +182,7 @@ describe('/users', () => {
             const user = await new AppUser(u1).save()
             await request(app)
                 .delete(`/users/${user.user_id}`)
+                .set('Cookie', [`token=${adminToken}`])
                 .expect(204)
             expect(await AppUser.findByPk(user.user_id)).to.be.null
         })
@@ -190,6 +202,7 @@ describe('/users', () => {
         it('returns a cookie with the JWT with the id of user', async () => {
             const response = await request(app)
                 .post('/users/signup')
+                .set('Cookie', [`token=${adminToken}`])
                 .send(u1)
                 .expect(201)
 
@@ -218,6 +231,37 @@ describe('/users', () => {
             const token: string = (response.header['set-cookie'][0] as string).substring(6, 193)
             const userIdFromToken: string = (jwt.decode(token) as JwtPayload).id
             expect(userIdFromToken).to.equal(user.user_id)
+        })
+    })
+
+    describe('Authorization', () => {
+        it('prevents users without JWT cookie to do CRUD operations on /users', async () => {
+            await request(app).get('/users').expect(401)
+            await request(app).get('/users/42').expect(401)
+            await request(app).post('/users').send(u1).expect(401)
+            await request(app).patch('/users/42').send(u1).expect(401)
+            await request(app).delete('/users/42').expect(401)
+        })
+
+        it('prevents non-admin to do CRUD operations on /users', async () => {
+            const user = await new AppUser(u1).save()
+            const token: string = jwt.sign({ id: user.user_id }, process.env.SECRET!, { expiresIn: '1d' })
+            await request(app).get('/users').set('Cookie', [`token=${token}`]).expect(403)
+            await request(app).get('/users/42').set('Cookie', [`token=${token}`]).expect(403)
+            await request(app).post('/users').set('Cookie', [`token=${token}`]).expect(403)
+            await request(app).patch('/users/42').set('Cookie', [`token=${token}`]).expect(403)
+            await request(app).delete('/users/42').set('Cookie', [`token=${token}`]).expect(403)
+        })
+
+        it('allows admin to do CRUD operations on /users', async () => {
+            const user = await new AppUser(u1).save()
+            await user.update({})
+            const token: string = jwt.sign({ id: user.user_id }, process.env.SECRET!, { expiresIn: '1d' })
+            await request(app).get('/users').set('Cookie', [`token=${token}`]).expect(403)
+            await request(app).get('/users/42').set('Cookie', [`token=${token}`]).expect(403)
+            await request(app).post('/users').set('Cookie', [`token=${token}`]).expect(403)
+            await request(app).patch('/users/42').set('Cookie', [`token=${token}`]).expect(403)
+            await request(app).delete('/users/42').set('Cookie', [`token=${token}`]).expect(403)
         })
     })
 })

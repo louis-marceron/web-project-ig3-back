@@ -92,7 +92,7 @@ export const updateUser = async (req: Request, res: Response) => {
     if (error instanceof UniqueConstraintError)
       return res.status(400).json({ error: "An account with this email already exists" })
 
-    console.log('Error updating user:', error)
+    console.error('Error updating user:', error)
     return res.status(500).json({ error: 'Error updating user' })
   }
 }
@@ -106,7 +106,7 @@ export const deleteUser = async (req: Request, res: Response) => {
   }
 
   catch (error) {
-    console.log('Error deleting user', error)
+    console.error('Error deleting user', error)
     return res.status(500).json('Error deleting user')
   }
 }
