@@ -46,7 +46,7 @@ meal {
 meal_consumption {
     UUID user_id PK,FK
     UUID meal_id PK,FK
-    datetime consumption_date
+    timestamp consumption_date PK
 }
 
 app_user ||--o{ meal_consumption : consumes

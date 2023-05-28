@@ -23,6 +23,7 @@ export default class MealConsumption extends Model {
     @Column({ type: DataTypes.UUID, allowNull: false })
     declare meal_id: string;
 
+    @PrimaryKey
     @Column({ type: DataTypes.DATE, allowNull: false })
     declare consumption_date: Date;
 

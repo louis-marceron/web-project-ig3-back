@@ -18,6 +18,6 @@ export default class Meal extends Model {
     @Column({ type: DataTypes.STRING, allowNull: true })
     declare description: string;
 
-    @Column({ type: DataTypes.FLOAT, allowNull: false })
+    @Column({ type: DataTypes.INTEGER, allowNull: false })
     declare carbon_footprint: number;
 }

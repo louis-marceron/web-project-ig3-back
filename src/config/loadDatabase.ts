@@ -32,7 +32,7 @@ export default function initializeDatabase(): void {
             console.error('Unable to connect to the database:', err)
             throw err
         })
-        .then(() => sequelize.sync())
+        .then(() => sequelize.sync({ alter: true }))
         .catch((err => {
             console.error('Unable to sync to the database:', err);
             throw err;
