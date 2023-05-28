@@ -1,11 +1,13 @@
 import bcrypt from 'bcrypt'
 import request from 'supertest'
 import { expect } from "chai"
-import jwt, { JwtPayload } from 'jsonwebtoken'
+import jwt, { JwtPayload, TokenExpiredError } from 'jsonwebtoken'
+import setCookie from 'set-cookie-parser'
 import app from '../src/app'
 import loadEnvironmentVariables from '../src/config/loadEnvironmentVariables'
 import db from '../utils/testDB.util'
 import AppUser from '../src/models/AppUser.model'
+import cookieParser from 'cookie-parser'
 
 const u1 = { email: 'user1@mail.com', password: 'password1' }
 const u2 = { email: 'user2@mail.com', password: 'password2' }
@@ -233,6 +235,24 @@ describe('/users', () => {
             expect(userIdFromToken).to.equal(user.user_id)
         })
     })
+
+    describe('/logout', () => {
+        it('clears the cookie', async () => {
+            const user = await new AppUser(u1).save()
+            const userToken = jwt.sign({ id: user.user_id }, process.env.SECRET!, { expiresIn: '1d' })
+
+            const response = await request(app)
+                .post('/users/logout')
+                .set('Cookie', [`token=${userToken}`])
+                .expect(200)
+
+
+            const parsedCookie = setCookie(response.headers['set-cookie'])
+            const token = parsedCookie.filter((cookie: any) => cookie.name === 'token')[0]
+            expect(() => jwt.verify(token.value, process.env.SECRET!)).to.throw(TokenExpiredError);
+        })
+    })
+
 
     describe('Authorization', () => {
         it('prevents users without JWT cookie to do CRUD operations on /users', async () => {

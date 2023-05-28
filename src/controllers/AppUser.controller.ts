@@ -82,7 +82,7 @@ export const updateUser = async (req: Request, res: Response) => {
 
     const userInput = partialUserSchema.parse(req.body)
     await user.update(userInput)
-    return res.status(204).end()
+    return res.status(204).json('User updated')
   }
 
   catch (error) {
@@ -102,7 +102,7 @@ export const deleteUser = async (req: Request, res: Response) => {
     const user = await AppUser.findByPk(req.params.id)
     if (!user) { return res.status(404).json('User not found') }
     await user.destroy()
-    return res.status(204).end()
+    return res.status(204).json('User deleted')
   }
 
   catch (error) {
@@ -113,7 +113,7 @@ export const deleteUser = async (req: Request, res: Response) => {
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    if (process.env.SECRET == undefined)
+    if (!process.env.SECRET)
       throw Error('You must define the environment variable "SECRET".')
 
     const userInput = AppUserSchema.parse(req.body)
@@ -122,7 +122,7 @@ export const signup = async (req: Request, res: Response) => {
     return res
       .cookie('token', token, { secure: true, httpOnly: true })
       .status(201)
-      .end()
+      .json('Registered successfully')
   }
 
   catch (error) {
@@ -139,7 +139,7 @@ export const signup = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   try {
-    if (process.env.SECRET == undefined)
+    if (!process.env.SECRET)
       throw Error('You must define the environment variable "SECRET".')
 
     const INVALID_CREDENTIAL_MESSAGE = 'Invalid credentials'
@@ -160,15 +160,35 @@ export const login = async (req: Request, res: Response) => {
     return res
       .status(200)
       .cookie('token', token, { secure: true, httpOnly: true })
-      .end()
+      .json('Logged in successfully')
   }
 
   catch (error) {
     if (error instanceof z.ZodError)
-      return res.status(400).json({ error: "Validation error", details: error.errors })
+      return res.status(400).json({ error: 'Validation error', details: error.errors })
 
-    console.error("Error creating user:", error)
-    return res.status(500).json({ error: "Error creating user" })
+    console.error('Error creating user:', error)
+    return res.status(500).json({ error: 'Error creating user' })
+  }
+}
+
+export const logout = async (req: Request, res: Response) => {
+  try {
+    if (!process.env.SECRET)
+      throw Error('You must define the environment variable "SECRET".')
+
+    // Return an expired JWT as a cookie since the client can't access the cookie to delete it (httpOnly)
+    const token: string = jwt.sign({ id: "logout user" }, process.env.SECRET, { expiresIn: 0 })
+
+    return res
+      .status(200)
+      .cookie('token', token, { secure: true, httpOnly: true })
+      .json('Log out successfully')
+  }
+
+  catch (error) {
+    console.error('Error logging out:', error)
+    return res.status(500).json({ error: 'Error logging out.' })
   }
 }
 

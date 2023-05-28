@@ -34,6 +34,7 @@
     "dotenv": "^16.0.3",
     "reflect-metadata": "^0.1.13",
     "sequelize-typescript": "^2.1.5",
+    "set-cookie-parser": "^2.6.0",
     "sqlite3": "^5.1.6",
     "supertest": "^6.3.3",
     "ts-mocha": "^10.0.0",

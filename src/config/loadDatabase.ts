@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize-typescript';
+import MissingEnvVariableError from '../types/missingEnvVariableError';
 
 /**
  * Initializes and configures the Sequelize instance to connect to the database
@@ -7,9 +8,8 @@ import { Sequelize } from 'sequelize-typescript';
  * @throws {Error} When unable to connect to the database or sync the models.
  */
 export default function initializeDatabase(): void {
-    if (!process.env.DATABASE_URL) {
-        throw new Error('Missing DATABASE_URL environment variable.');
-    }
+    if (!process.env.DATABASE_URL)
+        throw new MissingEnvVariableError('DATABASE_URL')
 
     const url: string = process.env.DATABASE_URL;
     const splitUrl: string[] = url.split(/[:@/]/);
@@ -32,7 +32,7 @@ export default function initializeDatabase(): void {
             console.error('Unable to connect to the database:', err)
             throw err
         })
-        .then(() => sequelize.sync({ force: true }))
+        .then(() => sequelize.sync())
         .catch((err => {
             console.error('Unable to sync to the database:', err);
             throw err;
