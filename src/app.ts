@@ -4,6 +4,16 @@ import cookieParser from 'cookie-parser'
 import notFoundErrorHandler from './middlewares/notFoundErrorHandler'
 import userRoutes from './routes/AppUser.route'
 
+// Hack for ts-node-dev to work (sometimes it doesn't load the express.d.ts file)
+import AppUser from './models/AppUser.model'
+declare global {
+    namespace Express {
+        interface Request {
+            user: AppUser
+        }
+    }
+}
+
 /** Middleware for handling HTTP requests. */
 const app = express()
 
