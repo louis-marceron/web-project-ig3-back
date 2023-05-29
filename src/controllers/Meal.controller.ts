@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express"
 import Meal from '../models/Meal.model'
 
-export const getAllUsers = async (_req: Request, res: Response, next: NextFunction) => {
+export const getAllMeals = async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const meals = await Meal.findAll()
 

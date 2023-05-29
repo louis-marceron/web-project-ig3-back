@@ -121,6 +121,7 @@ export const signup = async (req: Request, res: Response) => {
     const token: string = jwt.sign({ id: newUser.user_id }, process.env.SECRET, { expiresIn: TOKEN_LIFE_SPAN })
     return res
       .cookie('token', token, { secure: true, httpOnly: true })
+      .cookie('loggedIn', 'true', { secure: true })
       .status(201)
       .json('Registered successfully')
   }
@@ -138,6 +139,7 @@ export const signup = async (req: Request, res: Response) => {
 }
 
 export const login = async (req: Request, res: Response) => {
+  console.log('login')
   try {
     if (!process.env.SECRET)
       throw Error('You must define the environment variable "SECRET".')
@@ -160,6 +162,7 @@ export const login = async (req: Request, res: Response) => {
     return res
       .status(200)
       .cookie('token', token, { secure: true, httpOnly: true })
+      .cookie('loggedIn', 'true', { secure: true, httpOnly: false })
       .json('Logged in successfully')
   }
 

@@ -193,7 +193,7 @@ describe('/users', () => {
     describe('/signup', () => {
         it('creates a new user', async () => {
             await request(app)
-                .post('/users/signup')
+                .post('/auth/signup')
                 .send(u1)
                 .expect(201)
 
@@ -203,7 +203,7 @@ describe('/users', () => {
 
         it('returns a cookie with the JWT with the id of user', async () => {
             const response = await request(app)
-                .post('/users/signup')
+                .post('/auth/signup')
                 .set('Cookie', [`token=${adminToken}`])
                 .send(u1)
                 .expect(201)
@@ -218,7 +218,7 @@ describe('/users', () => {
     describe('/login', () => {
         it('returns 401 if the credentials are invalid', async () => {
             await request(app)
-                .post('/users/login')
+                .post('/auth/login')
                 .send(u1)
                 .expect(401)
         })
@@ -226,7 +226,7 @@ describe('/users', () => {
         it('returns a cookie with the JWT with the id of user', async () => {
             const user = await new AppUser(u1).save()
             const response = await request(app)
-                .post('/users/login')
+                .post('/auth/login')
                 .send(u1)
                 .expect(200)
 
@@ -242,7 +242,7 @@ describe('/users', () => {
             const userToken = jwt.sign({ id: user.user_id }, process.env.SECRET!, { expiresIn: '1d' })
 
             const response = await request(app)
-                .post('/users/logout')
+                .post('/auth/logout')
                 .set('Cookie', [`token=${userToken}`])
                 .expect(200)
 

@@ -3,6 +3,7 @@ const cors = require('cors')
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import notFoundErrorHandler from './middlewares/notFoundErrorHandler'
+import authenticationRoute from './routes/Authentication.route'
 import userRoutes from './routes/AppUser.route'
 import mealRoutes from './routes/Meal.route'
 
@@ -21,6 +22,7 @@ const app = express()
 
 const corsOptions = {
     origin: ['http://ecodiet.cluster-ig3.igpolytech.fr', 'http://localhost:5000'],
+    credentials: true
 };
 
 // Apply CORS middleware
@@ -31,6 +33,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 
+app.use("/auth", authenticationRoute)
 app.use("/users", userRoutes)
 app.use("/meals", mealRoutes)
 
