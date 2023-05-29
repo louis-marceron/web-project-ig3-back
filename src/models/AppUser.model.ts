@@ -14,8 +14,8 @@ import bcrypt from 'bcrypt';
 @Table({ tableName: 'app_user' })
 export default class AppUser extends Model {
   @PrimaryKey
-  @Column({ type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, allowNull: false })
-  declare user_id: string;
+  @Column({ type: DataTypes.INTEGER, autoIncrement: true ,allowNull: false })
+  declare user_id: number;
 
   @Unique
   @Column({ type: DataTypes.STRING(320), allowNull: false })

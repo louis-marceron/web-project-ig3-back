@@ -15,13 +15,13 @@ import Meal from './Meal.model'
 export default class MealConsumption extends Model {
     @PrimaryKey
     @ForeignKey(() => AppUser)
-    @Column({ type: DataTypes.UUID, allowNull: false })
-    declare user_id: string;
+    @Column({ type: DataTypes.INTEGER, allowNull: false })
+    declare user_id: number;
 
     @PrimaryKey
     @ForeignKey(() => Meal)
-    @Column({ type: DataTypes.UUID, allowNull: false })
-    declare meal_id: string;
+    @Column({ type: DataTypes.INTEGER, allowNull: false })
+    declare meal_id: number;
 
     @PrimaryKey
     @Column({ type: DataTypes.DATE, allowNull: false })
