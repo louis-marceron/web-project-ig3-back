@@ -40,6 +40,7 @@ meal {
     UUID meal_id PK
     string name
     string description
+    string image_url
     float carbon_footprint
 }
 

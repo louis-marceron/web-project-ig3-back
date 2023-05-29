@@ -18,6 +18,9 @@ export default class Meal extends Model {
     @Column({ type: DataTypes.STRING, allowNull: true })
     declare description: string;
 
+    @Column({ type: DataTypes.STRING, allowNull: false })
+    declare image_url: string;
+
     @Column({ type: DataTypes.INTEGER, allowNull: false })
     declare carbon_footprint: number;
 }

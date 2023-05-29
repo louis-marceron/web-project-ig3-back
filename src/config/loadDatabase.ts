@@ -18,6 +18,9 @@ export default function initializeDatabase(): void {
             freezeTableName: true,
             timestamps: false,
         },
+        dialectOptions: {
+            clientEncoding: 'UTF8',
+        },
         logging: false,
     });
 
@@ -26,7 +29,7 @@ export default function initializeDatabase(): void {
             console.error('Unable to connect to the database:', err)
             throw err
         })
-        .then(() => sequelize.sync({ alter: true }))
+        .then(() => sequelize.sync())
         .catch((err => {
             console.error('Unable to sync to the database:', err);
             throw err;
