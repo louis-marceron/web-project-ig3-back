@@ -11,14 +11,8 @@ export default function initializeDatabase(): void {
     if (!process.env.DATABASE_URL)
         throw new MissingEnvVariableError('DATABASE_URL')
 
-    const url: string = process.env.DATABASE_URL;
-    const splitUrl: string[] = url.split(/[:@/]/);
-
-    const sequelize = new Sequelize({
-        database: splitUrl[7],
+    const sequelize = new Sequelize(process.env.DATABASE_URL, {
         dialect: 'postgres',
-        username: splitUrl[3],
-        password: splitUrl[4],
         models: [`${__dirname}/../models`],
         define: {
             freezeTableName: true,
