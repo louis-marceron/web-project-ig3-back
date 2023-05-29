@@ -1,4 +1,5 @@
 const helmet = require('helmet')
+const cors = require('cors')
 import express from 'express'
 import cookieParser from 'cookie-parser'
 import notFoundErrorHandler from './middlewares/notFoundErrorHandler'
@@ -17,6 +18,13 @@ declare global {
 
 /** Middleware for handling HTTP requests. */
 const app = express()
+
+const corsOptions = {
+    origin: ['http://ecodiet.cluster-ig3.igpolytech.fr', 'http://localhost:5000'],
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
 
 app.use(helmet())
 app.use(express.json())
