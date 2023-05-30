@@ -21,7 +21,7 @@ declare global {
 const app = express()
 
 const corsOptions = {
-    origin: ['http://ecodiet-front.cluster-ig3.igpolytech.fr', 'http://localhost:5000'],
+    origin: ['https//ecodiet-front.cluster-ig3.igpolytech.fr', 'http://localhost:5000'],
     credentials: true
 };
 

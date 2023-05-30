@@ -17,8 +17,3 @@ export default Router()
     .post('/', authenticateToken, isAdmin, UserController.createUser)
     .patch('/:id', authenticateToken, userIdMatchUrlOrAdmin, UserController.updateUser)
     .delete('/:id', authenticateToken, userIdMatchUrlOrAdmin, UserController.deleteUser)
-
-function loginController(req: any, res: any, next: any) {
-    console.log('ouin ')
-    res.status(200).send('respond with a resource');
-}
