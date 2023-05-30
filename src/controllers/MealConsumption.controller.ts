@@ -40,7 +40,6 @@ export const getMealConsumption = async (req: Request, res: Response, next: Next
 
 export const createMealConsumption = async (req: Request, res: Response) => {
   try {
-    console.log(req.body)
     const mealConsumptionInput = MealConsumptionSchema.parse(req.body)
     const newMealConsumption = await MealConsumption.create({ ...mealConsumptionInput, user_id: req.params.id })
     return res.status(201).json(newMealConsumption)
