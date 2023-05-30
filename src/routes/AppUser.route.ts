@@ -7,10 +7,10 @@ import userIdMatchUrlOrAdmin from '../middlewares/userIdMatchOrAdmin.middleware'
 
 export default Router()
     // User's meals consumption
-    .get('/api/users/:id/meal-consumptions', authenticateToken, userIdMatchUrlOrAdmin, MealConsumptionController.getAllMealConsumptions)
-    .get('/api/users/:id/meal-consumptions/:timestamp', authenticateToken, userIdMatchUrlOrAdmin, MealConsumptionController.getMealConsumption)
-    .post('/api/users/:id/meal-consumptions', authenticateToken, userIdMatchUrlOrAdmin, MealConsumptionController.createMealConsumption)
-    .delete('/api/users/:id/meal-consumptions/:timestamp', authenticateToken, userIdMatchUrlOrAdmin, MealConsumptionController.deleteMealConsumption)
+    .get('/:id/meal-consumptions', authenticateToken, userIdMatchUrlOrAdmin, MealConsumptionController.getAllMealConsumptions)
+    .get('/:id/meal-consumptions/:timestamp', authenticateToken, userIdMatchUrlOrAdmin, MealConsumptionController.getMealConsumption)
+    .post('/:id/meal-consumptions', authenticateToken, userIdMatchUrlOrAdmin, MealConsumptionController.createMealConsumption)
+    .delete('/:id/meal-consumptions/:timestamp', authenticateToken, userIdMatchUrlOrAdmin, MealConsumptionController.deleteMealConsumption)
     // User's information
     .get('/', authenticateToken, isAdmin, UserController.getAllUsers)
     .get('/:id', authenticateToken, userIdMatchUrlOrAdmin, UserController.getUserById)

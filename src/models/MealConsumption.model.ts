@@ -24,7 +24,7 @@ export default class MealConsumption extends Model {
     declare meal_id: number;
 
     @PrimaryKey
-    @Column({ type: DataTypes.DATE, allowNull: false })
+    @Column({ type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW })
     declare consumption_date: Date;
 
     @BelongsTo(() => AppUser)

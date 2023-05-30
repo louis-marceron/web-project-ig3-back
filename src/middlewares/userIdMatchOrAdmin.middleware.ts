@@ -6,9 +6,9 @@ async function userIdMatchUrlOrAdmin(req: Request, res: Response, next: NextFunc
         return res.status(500).json({ error: 'Internal server error.' })
     }
 
-    const idFromUrl = req.params.id
-    const idFromUser = req.user.id
-    const isAdmin = req.user.is_admin
+    const idFromUrl: string = req.params.id
+    const idFromUser: string = req.user.user_id.toString()
+    const isAdmin: boolean = req.user.is_admin
 
     if (!isAdmin && idFromUser !== idFromUrl)
         return res.status(403).json({ error: 'You are not authorized to perform this action.' })

@@ -122,6 +122,7 @@ export const signup = async (req: Request, res: Response) => {
     const token: string = jwt.sign({ id: newUser.user_id }, process.env.SECRET, { expiresIn: TOKEN_LIFE_SPAN })
     return res
       .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN })
+      .cookie('userId', newUser.user_id, { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN })
       .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN })
       .status(201)
       .json('Registered successfully')
@@ -164,6 +165,7 @@ export const login = async (req: Request, res: Response) => {
       .status(200)
       .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN })
       .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN })
+      .cookie('userId', user.user_id, { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN })
       .json('Logged in successfully')
   }
 
