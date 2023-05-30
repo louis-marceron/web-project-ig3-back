@@ -103,7 +103,10 @@ export const deleteUser = async (req: Request, res: Response) => {
     const user = await AppUser.findByPk(req.params.id)
     if (!user) { return res.status(404).json('User not found') }
     await user.destroy()
-    return res.status(204).json('User deleted')
+    return res
+      .status(204)
+      .cookie('loggedIn', 'false', { secure: true, httpOnly: false })
+      .json('User deleted')
   }
 
   catch (error) {
@@ -121,9 +124,9 @@ export const signup = async (req: Request, res: Response) => {
     const newUser = await AppUser.create(userInput)
     const token: string = jwt.sign({ id: newUser.user_id }, process.env.SECRET, { expiresIn: TOKEN_LIFE_SPAN })
     return res
-      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
-      .cookie('userId', newUser.user_id, { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
-      .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
+      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN })
+      .cookie('userId', newUser.user_id, { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN })
+      .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN })
       .status(201)
       .json('Registered successfully')
   }
@@ -163,9 +166,9 @@ export const login = async (req: Request, res: Response) => {
     const token: string = jwt.sign({ id: user.user_id }, process.env.SECRET, { expiresIn: TOKEN_LIFE_SPAN })
     return res
       .status(200)
-      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none'})
-      .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
-      .cookie('userId', user.user_id, { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
+      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN })
+      .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN })
+      .cookie('userId', user.user_id, { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN })
       .json('Logged in successfully')
   }
 
@@ -188,7 +191,7 @@ export const logout = async (req: Request, res: Response) => {
 
     return res
       .status(200)
-      .cookie('token', token, { secure: true, httpOnly: true })
+      .cookie('token', token, { secure: true, httpOnly: true, sameSite : 'none' })
       .cookie('loggedIn', 'false', { secure: true, httpOnly: false })
       .json('Log out successfully')
   }

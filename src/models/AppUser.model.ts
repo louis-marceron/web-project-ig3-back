@@ -7,9 +7,11 @@ import {
   Default,
   BeforeCreate,
   BeforeUpdate,
+  HasMany,
 } from 'sequelize-typescript';
 import { DataTypes } from 'sequelize';
 import bcrypt from 'bcrypt';
+import MealConsumption from './MealConsumption.model';
 
 @Table({ tableName: 'app_user' })
 export default class AppUser extends Model {
@@ -27,6 +29,10 @@ export default class AppUser extends Model {
   @Default(false)
   @Column({ type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false })
   declare is_admin: boolean;
+
+  @HasMany(() => MealConsumption, {
+    onDelete: 'CASCADE',
+  })
 
   static async hashPassword(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);

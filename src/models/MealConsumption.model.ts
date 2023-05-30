@@ -27,7 +27,10 @@ export default class MealConsumption extends Model {
     @Column({ type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW })
     declare consumption_date: Date;
 
-    @BelongsTo(() => AppUser)
+    @BelongsTo(() => AppUser, {
+      onDelete: 'CASCADE',
+      hooks: true,
+    })
     declare user: AppUser;
 
     @BelongsTo(() => Meal)
