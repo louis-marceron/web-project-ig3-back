@@ -7,6 +7,7 @@ import AppUserSchema from '../validators/AppUser.validator'
 import jwt from 'jsonwebtoken'
 
 const TOKEN_LIFE_SPAN: string = '15d'
+const COOKIE_LIFE_SPAN: number = 1000 * 60 * 60 * 24 * 15 // 15 days in milliseconds
 
 export const getAllUsers = async (_req: Request, res: Response, next: NextFunction) => {
   try {
@@ -120,8 +121,8 @@ export const signup = async (req: Request, res: Response) => {
     const newUser = await AppUser.create(userInput)
     const token: string = jwt.sign({ id: newUser.user_id }, process.env.SECRET, { expiresIn: TOKEN_LIFE_SPAN })
     return res
-      .cookie('token', token, { secure: true, httpOnly: true })
-      .cookie('loggedIn', 'true', { secure: true })
+      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN })
+      .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN })
       .status(201)
       .json('Registered successfully')
   }
@@ -161,8 +162,8 @@ export const login = async (req: Request, res: Response) => {
     const token: string = jwt.sign({ id: user.user_id }, process.env.SECRET, { expiresIn: TOKEN_LIFE_SPAN })
     return res
       .status(200)
-      .cookie('token', token, { secure: true, httpOnly: true })
-      .cookie('loggedIn', 'true', { secure: true, httpOnly: false })
+      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN })
+      .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN })
       .json('Logged in successfully')
   }
 
@@ -186,6 +187,7 @@ export const logout = async (req: Request, res: Response) => {
     return res
       .status(200)
       .cookie('token', token, { secure: true, httpOnly: true })
+      .cookie('loggedIn', 'false', { secure: true, httpOnly: false })
       .json('Log out successfully')
   }
 
