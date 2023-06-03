@@ -19,8 +19,7 @@ const app = express()
 // app.use(cors(corsOptions));
 
 app.use(cors({
-    //origin: "http://localhost:5000"
-    origin: "https://ecodiet.onrender.com",
+    origin: ['https://ecodiet-front.cluster-ig3.igpolytech.fr', 'http://localhost:5000', 'https://ecodiet.onrender.com'],
     credentials: true,
 }));
 
@@ -28,19 +27,19 @@ app.use(cors({
 
 //////////////////////// PERMET DE SECURISE L'UTILISATION DE L'API UNIQUEMENT AU SITE
 // Définissez la liste des origines autorisées
-const allowedOrigins = ["http://localhost:5000","https://ecodiet.onrender.com"];
+// const allowedOrigins = ["http://localhost:5000", "https://ecodiet.onrender.com"];
 
-// Configurez CORS avec une fonction personnalisée pour vérifier l'origine de la requête
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin!)) {
-    res.setHeader("Access-Control-Allow-Origin", origin!);
-  } else {
-    // Si l'origine de la requête n'est pas autorisée, renvoyez une erreur ou une réponse appropriée
-    return res.status(403).json({ error: "Access denied" });
-  }
-  next();
-});
+// // Configurez CORS avec une fonction personnalisée pour vérifier l'origine de la requête
+// app.use((req, res, next) => {
+//     const origin = req.headers.origin;
+//     if (allowedOrigins.includes(origin!)) {
+//         res.setHeader("Access-Control-Allow-Origin", origin!);
+//     } else {
+//         // Si l'origine de la requête n'est pas autorisée, renvoyez une erreur ou une réponse appropriée
+//         return res.status(403).json({ error: "Access denied" });
+//     }
+//     next();
+// });
 
 // app.use(helmet())
 app.use(express.json())
