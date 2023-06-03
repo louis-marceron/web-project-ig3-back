@@ -166,9 +166,9 @@ export const login = async (req: Request, res: Response) => {
     const token: string = jwt.sign({ id: user.user_id }, process.env.SECRET, { expiresIn: TOKEN_LIFE_SPAN })
     return res
       .status(200)
-      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
-      .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
-      .cookie('userId', user.user_id, { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
+      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'lax', domain: '.ecodiet.cluster-ig3.igpolytech.fr' })
+      .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'lax', domain: '.ecodiet.cluster-ig3.igpolytech.fr' })
+      .cookie('userId', user.user_id, { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'lax', domain: '.ecodiet.cluster-ig3.igpolytech.fr' })
       .json('Logged in successfully')
   }
 
