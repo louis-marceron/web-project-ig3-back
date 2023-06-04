@@ -124,11 +124,12 @@ export const signup = async (req: Request, res: Response) => {
     const newUser = await AppUser.create(userInput)
     const token: string = jwt.sign({ id: newUser.user_id }, process.env.SECRET, { expiresIn: TOKEN_LIFE_SPAN })
     return res
-      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none'})
-      .cookie('userId', newUser.user_id, { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
-      .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
+      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN, sameSite: 'lax' })
       .status(201)
-      .json('Registered successfully')
+      .json({
+        message: 'Registered successfully',
+        userId: newUser.user_id
+      });
   }
 
   catch (error) {
@@ -166,13 +167,11 @@ export const login = async (req: Request, res: Response) => {
     const token: string = jwt.sign({ id: user.user_id }, process.env.SECRET, { expiresIn: TOKEN_LIFE_SPAN })
     return res
       .status(200)
-      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
-      .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
-      .cookie('userId', user.user_id, { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'none' })
-      // .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'lax', domain: '.cluster-ig3.igpolytech.fr' })
-      // .cookie('loggedIn', 'true', { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'lax', domain: '.cluster-ig3.igpolytech.fr' })
-      // .cookie('userId', user.user_id, { secure: true, httpOnly: false, maxAge: COOKIE_LIFE_SPAN, path: '/', sameSite: 'lax', domain: '.cluster-ig3.igpolytech.fr' })
-      .json('Logged in successfully')
+      .cookie('token', token, { secure: true, httpOnly: true, maxAge: COOKIE_LIFE_SPAN, sameSite: 'lax' })
+      .json({
+        message: 'Logged in successfully',
+        userId: user.user_id
+      });
   }
 
   catch (error) {
@@ -194,8 +193,7 @@ export const logout = async (req: Request, res: Response) => {
 
     return res
       .status(200)
-      .cookie('token', token, { secure: true, httpOnly: true, path: '/', sameSite: 'none'})
-      .cookie('loggedIn', 'false', { secure: true, httpOnly: false, path: '/', sameSite: 'none' })
+      .cookie('token', token, { secure: true, httpOnly: true, path: '/', sameSite: 'none' })
       .json('Log out successfully')
   }
 
